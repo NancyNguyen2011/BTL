@@ -10,8 +10,9 @@ from src.pipeline import run_pipeline
 from src.transformer import period_summary
 from views import banks, funds, inflation, overview, tracker
 from views.common import latest_rates
+from views.style import apply_style
 
-st.set_page_config(page_title="NTTT · Phân tích đầu tư", page_icon="📊", layout="wide")
+st.set_page_config(page_title="NTTT · Phân tích đầu tư", layout="wide")
 
 
 @st.cache_data(show_spinner=False)
@@ -21,13 +22,15 @@ def load_snapshot(version):
 
 
 def main():
-    st.title("📊 BÁO CÁO PHÂN TÍCH VÀ SO SÁNH HIỆU QUẢ ĐẦU TƯ")
-    st.markdown("**CHỨNG CHỈ QUỸ (FMARKET) VS LÃI SUẤT NGÂN HÀNG VS CHỈ SỐ LẠM PHÁT (CPI)**")
-    st.caption("🎓 Sinh viên thực hiện: NTTT~B23DCKD069")
+    apply_style()
+    st.title("Hiệu quả đầu tư")
+    st.caption("Chứng chỉ quỹ · Ngân hàng · CPI  |  NTTT~B23DCKD069")
     with st.sidebar:
-        st.header("Điều khiển phân tích")
-        st.caption("Nguồn cập nhật: HTTPS CSV đã cấu hình" if os.getenv("INVEST_SOURCES_CONFIG") else "Nguồn cập nhật: data/raw/ (file cục bộ)")
-        refresh = st.button("🔄 Cập nhật Dữ liệu Mới (Scrape & ETL)", use_container_width=True)
+        st.header("NTTT Analytics")
+        page = st.radio("Danh mục", ["Tổng quan", "Cơ cấu quỹ", "Ngân hàng", "Lạm phát & sức mua"], key="navigation")
+        refresh = st.button("Cập nhật dữ liệu", use_container_width=True, type="primary")
+        st.divider()
+        st.subheader("Bộ lọc")
     if refresh or not DB_PATH.exists():
         try:
             with st.spinner("Thu thập → làm sạch → tạo chỉ số → lưu SQLite..."):
@@ -59,8 +62,8 @@ def main():
         capital = st.number_input("Vốn đầu tư ban đầu (VNĐ)", min_value=100_000.0, value=100_000_000.0, step=1_000_000.0)
         term = st.selectbox("Kỳ hạn ngân hàng (tháng)", [6, 12, 24], index=1)
         names = sorted(data["bank_rates"].bank_name.unique())
-        selected_banks = st.multiselect("Ngân hàng so sánh", names, default=names)
-        st.caption("Lãi suất dùng snapshot mới nhất của nguồn; không bị diễn giải là lịch sử theo thanh thời gian.")
+        all_banks = st.checkbox("Tất cả ngân hàng", value=True)
+        selected_banks = names if all_banks else st.multiselect("Ngân hàng so sánh", names, default=[])
     filtered = nav[nav.date.between(pd.Timestamp(start), pd.Timestamp(end))]
     if kind != "Tất cả":
         filtered = filtered[filtered.fund_type == kind]
@@ -71,14 +74,13 @@ def main():
     rates = latest_rates(data["bank_rates"], term, selected_banks)
     cpi = data["macro_cpi"]
     cpi = cpi[cpi.date.between(pd.Timestamp(start).to_period("M").to_timestamp(), pd.Timestamp(end))]
-    tabs = st.tabs(["📈 Tổng quan", "🍩 Cơ cấu CCQ", "🏦 CCQ vs Ngân hàng", "📉 Lợi nhuận thực & CPI"])
-    with tabs[0]:
+    if page == "Tổng quan":
         overview.render(filtered, summary, rates, cpi)
-    with tabs[1]:
+    elif page == "Cơ cấu quỹ":
         funds.render(data["fund_info"], data["fund_holdings"], summary, pd.Timestamp(end))
-    with tabs[2]:
+    elif page == "Ngân hàng":
         banks.render(filtered, summary, rates, capital)
-    with tabs[3]:
+    else:
         inflation.render(filtered, cpi, rates)
 
 

@@ -1,6 +1,8 @@
 # Phân tích CCQ, lãi suất ngân hàng và CPI
 
-**Sinh viên: NTTT~B23DCKD069**. Ứng dụng Streamlit bốn tab với pipeline CSV → làm sạch → chỉ số tài chính → SQLite và notebook EDA/Data Mining để thuyết trình.
+**Sinh viên: NTTT~B23DCKD069**. Ứng dụng Streamlit bốn mục điều hướng ở sidebar với pipeline CSV → làm sạch → chỉ số tài chính → SQLite và notebook EDA/Data Mining để thuyết trình.
+
+Giao diện xanh–trắng, thẻ bo tròn, số lớn và chỉ báo tăng/giảm xanh–đỏ. Trang tổng quan bổ sung scatter CAGR–drawdown và biểu đồ hộp lợi nhuận tháng. Các bảng và giải thích dài nằm trong mục mở rộng. Theme được cấu hình tại `.streamlit/config.toml`, CSS tại `views/style.py`.
 
 ## Chạy dự án
 
@@ -69,7 +71,7 @@ Khoảng ngày tác động NAV, CPI và ngày chọn cơ cấu tài sản. Ngâ
 
 ## Cập nhật tự động
 
-Nút **🔄 Cập nhật Dữ liệu Mới (Scrape & ETL)** gọi `src.pipeline.run_pipeline`, thu thập vào thư mục tạm, kiểm tra đủ file/schema, làm sạch, biến đổi, ghi transaction, xóa cache và `st.rerun()`. Timestamp chạy ETL và ngày cập nhật nguồn được trình bày riêng. Nếu thất bại, ứng dụng hiển thị lỗi và tiếp tục sử dụng snapshot cũ.
+Nút **Cập nhật dữ liệu** gọi `src.pipeline.run_pipeline`, thu thập vào thư mục tạm, kiểm tra đủ file/schema, làm sạch, biến đổi, ghi transaction, xóa cache và `st.rerun()`. Timestamp chạy ETL và ngày cập nhật nguồn được trình bày riêng. Nếu thất bại, ứng dụng hiển thị lỗi và tiếp tục sử dụng snapshot cũ.
 
 **Mặc định: cập nhật từ file.** Thay các CSV cùng schema trong `data/raw/`, rồi bấm nút. Chạy lại cùng dữ liệu không nhân đôi bảng; lịch sử ghi thêm một lần thực thi.
 

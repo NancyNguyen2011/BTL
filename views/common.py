@@ -4,9 +4,24 @@ import streamlit as st
 
 
 def chart(figure):
-    figure.update_layout(template="plotly_white", font=dict(family="Arial", size=13),
-                         margin=dict(l=15, r=15, t=55, b=25), legend_title_text="")
-    st.plotly_chart(figure, use_container_width=True)
+    figure.update_layout(template="plotly_white", font=dict(family="Arial", size=14, color="#284766"),
+                         paper_bgcolor="white", plot_bgcolor="white",
+                         margin=dict(l=25, r=25, t=65, b=70), legend_title_text="",
+                         legend=dict(orientation="h", y=-.22, x=0),
+                         colorway=["#2563eb", "#0d9488", "#7c3aed", "#ea580c", "#0891b2"],
+                         hoverlabel=dict(bgcolor="white", font_size=14))
+    figure.update_xaxes(showgrid=False, automargin=True)
+    figure.update_yaxes(gridcolor="#edf2f9", automargin=True)
+    for trace in figure.data:
+        if trace.type == "scatter" and trace.mode and "lines" in trace.mode:
+            trace.line.width = 2.8
+    st.plotly_chart(figure, use_container_width=True, theme=None,
+                    config={"displaylogo": False, "scrollZoom": False})
+
+
+def change(value, suffix="%"):
+    """Dấu +/- để st.metric tự hiển thị mũi tên và màu xanh/đỏ đúng chiều."""
+    return None if pd.isna(value) else f"{value:+.2f}{suffix}"
 
 
 def percent(value):

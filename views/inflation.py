@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import streamlit as st
 
-from views.common import bank_stats, chart
+from views.common import bank_stats, chart, change
 
 
 def render(nav, cpi, rates):
@@ -32,7 +32,8 @@ def render(nav, cpi, rates):
     fig.update_yaxes(title_text="CPI YoY (%)", secondary_y=False)
     fig.update_yaxes(title_text="NAV 12M / lãi suất NH (%/năm)", secondary_y=True)
     chart(fig)
-    st.caption("Đối chiếu hồi cứu cùng tháng, không giả định CPI đã công bố vào ngày giao dịch. Đường NH là kịch bản snapshot, không phải chuỗi lãi suất lịch sử.")
+    with st.expander("Cách đối chiếu"):
+        st.caption("NAV 12M và CPI YoY cùng tháng. Đường ngân hàng giữ cố định lãi suất đã scrape; không phải lịch sử lãi suất.")
     available = monthly.dropna(subset=["return_12m_nav", "cpi_yoy"])
     if available.empty:
         st.info("Chưa đủ NAV 12 tháng và CPI cùng kỳ để tính lợi nhuận thực.")
@@ -49,11 +50,15 @@ def render(nav, cpi, rates):
     compared["Thực (%)"] = (compared["Danh nghĩa (%)"] - compared.cpi_yoy if exact.startswith("Xấp")
                              else ((1 + compared["Danh nghĩa (%)"] / 100) / (1 + compared.cpi_yoy / 100) - 1) * 100)
     compared["Sức mua"] = compared["Thực (%)"].map(lambda x: "Tăng" if x >= 0 else "Giảm")
+    high = compared.loc[compared["Thực (%)"].idxmax()]
+    low = compared.loc[compared["Thực (%)"].idxmin()]
+    a, b, c = st.columns(3)
+    a.metric(str(high["Kênh"]), f'{high["Thực (%)"]:.2f}%', change(high["Thực (%)"]), help="Lợi nhuận thực cao nhất trong nhóm chọn")
+    b.metric(str(low["Kênh"]), f'{low["Thực (%)"]:.2f}%', change(low["Thực (%)"]), help="Lợi nhuận thực thấp nhất trong nhóm chọn")
+    c.metric("Vượt lạm phát", f'{int((compared["Thực (%)"] > 0).sum())}/{len(compared)} kênh')
     fig = px.bar(compared.sort_values("Thực (%)"), x="Thực (%)", y="Kênh", orientation="h", color="Sức mua",
                  color_discrete_map={"Tăng": "#15803d", "Giảm": "#dc2626"}, title="Lợi nhuận thực 12 tháng · cùng kỳ CPI")
     fig.add_vline(x=0, line_color="#334155")
     chart(fig)
-    st.dataframe(compared, hide_index=True, use_container_width=True)
-    winners = compared.loc[compared["Thực (%)"] > 0, "Kênh"].tolist()
-    st.write("Kênh có lợi nhuận thực dương trong kỳ: " + (", ".join(winners) if winners else "Không có trong nhóm chọn"))
-    st.caption("CPI MoM có tháng thiếu nên không suy diễn sức mua tích lũy toàn kỳ bằng cách cộng CPI YoY.")
+    with st.expander("Số liệu lợi nhuận thực"):
+        st.dataframe(compared, hide_index=True, use_container_width=True)

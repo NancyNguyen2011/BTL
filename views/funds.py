@@ -17,14 +17,15 @@ def render(info, holdings, summary, end):
             portfolio = portfolio[portfolio.update_date == portfolio.update_date.max()]
             chart(px.pie(portfolio, values="asset_percent", names="asset_type", hole=.6,
                          title=f"{symbol} · cơ cấu tại {portfolio.update_date.max():%d/%m/%Y}"))
-            st.dataframe(portfolio[["asset_type", "asset_percent"]], hide_index=True)
+            with st.expander("Tỷ trọng chi tiết"):
+                st.dataframe(portfolio[["asset_type", "asset_percent"]], hide_index=True)
     with right:
         st.write(f"**{fund.fund_name}**")
         st.write(f"Loại quỹ: {fund.fund_type}")
         st.write(f"Mức độ rủi ro (nguồn): {fund.risk_level}")
         st.metric("Phí quản lý (%/năm)", f"{fund.management_fee:.2f}")
         st.metric("Giá trị mua tối thiểu (VNĐ)", f"{fund.buy_min_value:,.0f}")
-        st.caption("Thông tin quỹ là snapshot nguồn, không có lịch sử phí hay ngày hiệu lực trong file.")
+        st.caption("Thông tin tại lần cập nhật nguồn.")
     selected = st.multiselect("Các quỹ trong ma trận", sorted(summary.symbol), default=sorted(summary.symbol))
     subset = summary[summary.symbol.isin(selected)]
     if subset.empty:
@@ -34,7 +35,7 @@ def render(info, holdings, summary, end):
     long = subset.melt(id_vars="symbol", value_vars=metrics, var_name="Kỳ", value_name="Lợi nhuận (%)").dropna()
     long["Kỳ"] = long["Kỳ"].str.replace("return_", "").str.replace("_nav", "").str.upper()
     chart(px.bar(long, x="symbol", y="Lợi nhuận (%)", color="Kỳ", barmode="group", title="Lợi nhuận NAV theo kỳ hạn"))
-    st.caption("Lợi nhuận trailing tính đến lần quan sát cuối trong khoảng chọn; dùng lịch sử trước khoảng chọn nếu cần. Ô thiếu không thay bằng 0.")
+    st.caption("Tính đến ngày NAV cuối trong kỳ chọn.")
     scatter = subset.merge(info[["symbol", "management_fee", "risk_level", "fund_type"]], on="symbol").dropna(subset=["return_12m_nav", "management_fee"])
     if not scatter.empty:
         fig = px.scatter(scatter, x="management_fee", y="return_12m_nav", color="fund_type", text="symbol",
@@ -42,6 +43,6 @@ def render(info, holdings, summary, end):
                          labels={"management_fee": "Phí quản lý (%/năm)", "return_12m_nav": "Lợi nhuận 12M (%)"})
         fig.add_vline(x=scatter.management_fee.median(), line_dash="dot")
         fig.add_hline(y=scatter.return_12m_nav.median(), line_dash="dot")
-        fig.update_traces(textposition="top center")
+        fig.update_traces(textposition="top center", marker_size=16)
         chart(fig)
-        st.caption("Hai đường phân tư là trung vị nhóm chọn. Phí quản lý không phải thước đo rủi ro; mức rủi ro nguồn nằm trong tooltip.")
+        st.caption("Đường nét đứt: trung vị. Phí quản lý không đại diện mức rủi ro.")
