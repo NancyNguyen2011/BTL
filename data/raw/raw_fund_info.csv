@@ -1,0 +1,6 @@
+﻿fund_id,symbol,fund_name,fund_type,risk_level,buy_min_value,management_fee,owner_name,return_1m,return_3m,return_6m,return_12m,return_since_inception,is_transferred
+32,VCBF-BCF,QUỸ ĐẦU TƯ CỔ PHIẾU HÀNG ĐẦU VCBF,Quỹ cổ phiếu,Cao,100000.0,1.9,CÔNG TY TNHH QUẢN LÝ QUỸ ĐẦU TƯ CHỨNG KHOÁN VIETCOMBANK,-3.47,-6.92,-6.94,-5.8,305.35,True
+21,VFF,QUỸ ĐẦU TƯ TRÁI PHIẾU NÂNG CAO VINACAPITAL,Quỹ trái phiếu,Thấp - Trung bình,100000.0,0.95,CÔNG TY CỔ PHẦN QUẢN LÝ QUỸ VINACAPITAL,1.02,2.36,4.25,8.17,170.35,True
+23,VESAF,QUỸ ĐẦU TƯ CỔ PHIẾU TĂNG TRƯỞNG CHIẾN LƯỢC VINACAPITAL,Quỹ cổ phiếu,Trung bình-Cao,100000.0,1.75,CÔNG TY CỔ PHẦN QUẢN LÝ QUỸ VINACAPITAL,-1.44,-5.3,-9.99,-9.72,213.94,True
+27,DCBF,QUỸ ĐẦU TƯ TRÁI PHIẾU DC,Quỹ trái phiếu,Thấp,100000.0,1.2,CÔNG TY CỔ PHẦN QUẢN LÝ QUỸ DRAGON CAPITAL VIỆT NAM,0.85,2.08,3.98,7.54,206.4,True
+28,DCDS,QUỸ ĐẦU TƯ CHỨNG KHOÁN NĂNG ĐỘNG DC,Quỹ cổ phiếu,Trung bình,100000.0,1.95,CÔNG TY CỔ PHẦN QUẢN LÝ QUỸ DRAGON CAPITAL VIỆT NAM,-2.55,-7.29,-5.92,-11.23,833.22,True
